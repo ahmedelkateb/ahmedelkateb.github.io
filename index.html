@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منشئ الخطط الغذائية - د/ شذا العطار</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Cairo -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet" crossorigin="anonymous">
+    <!-- html-to-image & jsPDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>
+        if (typeof tailwind !== 'undefined') {
+            tailwind.config = {
+                theme: {
+                    extend: {
+                        fontFamily: {
+                            sans: ['Cairo', 'sans-serif'],
+                        },
+                        colors: {
+                            emerald: {
+                                50: '#ecfdf5',
+                                100: '#d1fae5',
+                                500: '#10b981',
+                                600: '#059669',
+                                700: '#047857',
+                                800: '#065f46',
+                                900: '#064e3b',
+                            }
+                        }
+                    }
+                }
+            };
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Cairo', system-ui, -apple-system, sans-serif;
+            background-color: #f8fafc;
+        }
+        #pdf-content, #pdf-content * {
+            font-family: 'Cairo', system-ui, -apple-system, sans-serif !important;
+            letter-spacing: 0px !important;
+            font-feature-settings: "kern" 1, "liga" 1, "clig" 1;
+            -webkit-font-smoothing: antialiased;
+        }
+        .meal-card {
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+        /* Strict Single-Page A4 Print Formatting */
+        @media print {
+            @page {
+                size: A4 portrait;
+                margin: 0mm !important;
+            }
+            html, body {
+                width: 210mm !important;
+                height: 296mm !important;
+                max-height: 296mm !important;
+                background: #ffffff !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                overflow: hidden !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            nav, .input-panel, .preview-header-bar {
+                display: none !important;
+            }
+            main {
+                display: block !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                max-width: 100% !important;
+            }
+            .preview-wrapper {
+                padding: 0 !important;
+                margin: 0 !important;
+                background: #ffffff !important;
+                box-shadow: none !important;
+                overflow: hidden !important;
+                display: block !important;
+            }
+            #pdf-content {
+                width: 210mm !important;
+                height: 296mm !important;
+                min-height: 296mm !important;
+                max-height: 296mm !important;
+                box-shadow: none !important;
+                border: none !important;
+                margin: 0 auto !important;
+                padding: 7mm 8mm !important;
+                box-sizing: border-box !important;
+                overflow: hidden !important;
+                page-break-after: avoid !important;
+                page-break-before: avoid !important;
+            }
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased selection:bg-emerald-500 selection:text-white" oninput="syncAll()">
+
+    <!-- Top Navigation Bar -->
+    <nav class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+        <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+                <div class="bg-emerald-600 text-white p-2 rounded-lg shadow-md shadow-emerald-600/20">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                    </svg>
+                </div>
+                <div>
+                    <span class="font-bold text-base sm:text-lg tracking-tight text-slate-900 block leading-none">د/ شذا العطار</span>
+                    <span class="text-xs text-emerald-600 font-semibold">استشاري التغذية العلاجية</span>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button type="button" onclick="printPlan()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2 px-3 sm:px-4 rounded-lg transition-all flex items-center gap-1.5 text-xs sm:text-sm border border-slate-200 active:scale-95">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="6 9 6 2 18 2 18 9"/>
+                        <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+                        <rect width="12" height="8" x="6" y="14"/>
+                    </svg>
+                    <span>طباعة</span>
+                </button>
+                <button type="button" onclick="generatePDF()" id="export-btn" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-3.5 sm:px-5 rounded-lg shadow-md shadow-emerald-600/20 transition-all flex items-center gap-1.5 text-xs sm:text-sm active:scale-95">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="7 10 12 15 17 10"/>
+                        <line x1="12" x2="12" y1="15" y2="3"/>
+                    </svg>
+                    <span>حفظ PDF</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Grid -->
+    <main class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Right Column (in RTL): Input Form -->
+        <div class="input-panel lg:col-span-5 space-y-5">
+            
+            <!-- Client Information Card -->
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200/80">
+                <h2 class="text-lg font-bold text-slate-900 mb-3.5 flex items-center gap-2 border-b pb-2.5 border-slate-100">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" class="text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                    بيانات المتابع
+                </h2>
+                
+                <div class="space-y-3.5">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">اسم المتابع</label>
+                        <input type="text" id="in-name" oninput="syncAll()" placeholder="مثال: سارة أحمد" class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none text-base">
+                    </div>
+                    
+                    <div class="grid grid-cols-3 gap-2.5">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 mb-1">العمر</label>
+                            <input type="number" id="in-age" oninput="syncAll()" placeholder="28" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none text-base">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 mb-1">الوزن (كجم)</label>
+                            <input type="number" step="0.1" id="in-weight" oninput="syncAll()" placeholder="68.5" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none text-base">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 mb-1">الطول (سم)</label>
+                            <input type="number" id="in-height" oninput="syncAll()" placeholder="165" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none text-base">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Meal Plan Inputs Card -->
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200/80">
+                <h2 class="text-lg font-bold text-slate-900 mb-3.5 flex items-center gap-2 border-b pb-2.5 border-slate-100">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" class="text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/>
+                        <path d="M7 2v20"/>
+                        <path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/>
+                    </svg>
+                    البرنامج الغذائي للأسبوع
+                </h2>
+
+                <div class="space-y-3.5">
+                    <div>
+                        <label class="block text-xs font-bold text-emerald-700 mb-1">رقم الأسبوع</label>
+                        <input type="text" id="in-week" oninput="syncAll()" placeholder="مثال: الأول، الثاني، الثالث..." class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none text-base">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-emerald-700 mb-1">الإفطار</label>
+                        <textarea id="in-breakfast" oninput="syncAll()" rows="2" placeholder="أدخل خيارات وجبة الإفطار والكميات..." class="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none text-base resize-y"></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-emerald-700 mb-1">وجبة خفيفة أولى - سناك ١</label>
+                        <textarea id="in-snack1" oninput="syncAll()" rows="2" placeholder="مثال: ثمرة فاكهة، قهوة بدون سكر..." class="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none text-base resize-y"></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-emerald-700 mb-1">الغداء</label>
+                        <textarea id="in-lunch" oninput="syncAll()" rows="2" placeholder="أدخل تفاصيل وجبة الغداء ومصادر البروتين والنشويات..." class="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none text-base resize-y"></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-emerald-700 mb-1">وجبة خفيفة ثانية - سناك ٢</label>
+                        <textarea id="in-snack2" oninput="syncAll()" rows="2" placeholder="مثال: حفنة مكسرات نيئة، زبادي يوناني..." class="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none text-base resize-y"></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-emerald-700 mb-1">العشاء</label>
+                        <textarea id="in-dinner" oninput="syncAll()" rows="2" placeholder="أدخل خيارات وجبة العشاء الخفيفة..." class="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none text-base resize-y"></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">ملاحظات وتوصيات عامة</label>
+                        <textarea id="in-notes" oninput="syncAll()" rows="2" placeholder="تعليمات شرب الماء، مواعيد النوم، الرياضة، المكملات..." class="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none text-base resize-y"></textarea>
+                    </div>
+
+                    <!-- Optional Signature Image Customizer -->
+                    <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
+                        <div>
+                            <span class="text-xs font-bold text-slate-700 block">توقيع الطبيب المعتمد</span>
+                            <span class="text-[11px] text-slate-400">مدمج تلقائياً (أو اختر ملف التوقيع الأصلي)</span>
+                        </div>
+                        <label class="cursor-pointer bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold py-1.5 px-3 rounded-lg border border-slate-200 transition-all shrink-0">
+                            <span>رفع صورة التوقيع</span>
+                            <input type="file" id="sig-upload" accept="image/*" class="hidden">
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Left Column (in RTL): Live Document Preview -->
+        <div class="lg:col-span-7">
+            <div class="sticky top-20">
+                <div class="preview-header-bar flex items-center justify-between mb-2">
+                    <span class="text-xs font-bold uppercase text-slate-400">معاينة حية للمستند (صفحة A4 واحدة)</span>
+                    <span class="text-xs text-slate-400">يتم التحديث تلقائياً</span>
+                </div>
+                
+                <!-- Scrollable Preview Container -->
+                <div class="preview-wrapper bg-slate-200/70 p-2 sm:p-4 rounded-xl overflow-x-auto shadow-inner flex justify-center">
+                    
+                    <!-- THE ACTUAL PDF CONTENT AREA -->
+                    <div id="pdf-content" dir="rtl" class="bg-white shadow-sm text-slate-800 relative w-[794px] h-[1122px] max-h-[1122px] py-6 px-5 flex flex-col justify-between box-border shrink-0 overflow-hidden">
+                        
+                        <div>
+                            <!-- Document Header: Doctor Info on Right, Date + Icon on Left -->
+                            <div class="border-b-2 border-emerald-600 pb-3.5 mb-4 flex justify-between items-center">
+                                <!-- Right: Doctor Name & Title -->
+                                <div>
+                                    <h1 class="text-3xl font-extrabold text-slate-900 mb-0.5 leading-tight">
+                                        <span>د.&rlm;</span> <span>شذا العطار</span>
+                                    </h1>
+                                    <p class="text-emerald-700 font-bold text-xl">استشاري التغذية العلاجية</p>
+                                </div>
+
+                                <!-- Left: Date (to the right of the icon) + Header Icon -->
+                                <div class="flex items-center gap-3.5">
+                                    <div class="text-left bg-slate-50 px-3.5 py-2 rounded-xl border border-slate-200/80">
+                                        <div class="text-[11px] font-bold text-emerald-700 mb-0.5">التاريخ</div>
+                                        <div id="current-date" class="text-sm font-extrabold text-slate-800">الجمعة، ٢٣ أكتوبر ٢٠٢٦</div>
+                                    </div>
+                                    <div class="bg-emerald-50 p-3 rounded-2xl border border-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Client Details Grid -->
+                            <div class="bg-slate-50 rounded-xl p-3 mb-4 border border-slate-200/90">
+                                <div class="grid grid-cols-4 gap-2.5 text-right">
+                                    <div class="bg-white p-2.5 rounded-lg border border-slate-200/70">
+                                        <div class="text-xs font-bold text-emerald-700 mb-0.5">اسم المتابع</div>
+                                        <div id="out-name" class="font-extrabold text-slate-900 text-lg truncate">-</div>
+                                    </div>
+                                    <div class="bg-white p-2.5 rounded-lg border border-slate-200/70">
+                                        <div class="text-xs font-bold text-emerald-700 mb-0.5">العمر</div>
+                                        <div id="out-age" class="font-extrabold text-slate-900 text-lg">-</div>
+                                    </div>
+                                    <div class="bg-white p-2.5 rounded-lg border border-slate-200/70">
+                                        <div class="text-xs font-bold text-emerald-700 mb-0.5">الوزن</div>
+                                        <div id="out-weight" class="font-extrabold text-slate-900 text-lg">-</div>
+                                    </div>
+                                    <div class="bg-white p-2.5 rounded-lg border border-slate-200/70">
+                                        <div class="text-xs font-bold text-emerald-700 mb-0.5">الطول</div>
+                                        <div id="out-height" class="font-extrabold text-slate-900 text-lg">-</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Meals Section -->
+                            <div class="space-y-3 mb-4">
+                                <h3 class="text-xl font-extrabold text-emerald-800 border-b border-slate-200 pb-1.5 flex items-center gap-1.5">
+                                    <span>البرنامج الغذائي للأسبوع</span>
+                                    <span id="out-week" class="text-emerald-600"></span>
+                                </h3>
+                                
+                                <!-- Breakfast -->
+                                <div class="meal-card flex gap-3 bg-white border border-slate-200 rounded-xl p-3.5">
+                                    <div class="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200/60 flex items-center justify-center text-amber-600 shrink-0 mt-0.5">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M12 2v8"/>
+                                            <path d="m4.93 10.93 1.41 1.41"/>
+                                            <path d="M2 18h2"/>
+                                            <path d="M20 18h2"/>
+                                            <path d="m19.07 10.93-1.41 1.41"/>
+                                            <path d="M22 22H2"/>
+                                            <path d="m8 6 4-4 4 4"/>
+                                            <path d="M16 18a4 4 0 0 0-8 0"/>
+                                        </svg>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <h4 class="font-extrabold text-slate-900 text-xl mb-0.5">الإفطار</h4>
+                                        <p id="out-breakfast" class="text-slate-800 text-[17px] font-semibold whitespace-pre-line leading-snug">لم يتم تحديد وجبة الإفطار بعد.</p>
+                                    </div>
+                                </div>
+
+                                <!-- Snack 1 -->
+                                <div class="meal-card flex gap-3 bg-white border border-slate-200 rounded-xl p-3.5">
+                                    <div class="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200/60 flex items-center justify-center text-emerald-600 shrink-0 mt-0.5">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M12 20.94c1.5 0 2.75 1.06 4 1.06 3 0 6-8 6-12.22A4.91 4.91 0 0 0 17 5c-2.22 0-4 1.44-5 2-1-.56-2.78-2-5-2a4.9 4.9 0 0 0-5 4.78C2 14 5 22 8 22c1.25 0 2.5-1.06 4-1.06Z"/>
+                                            <path d="M10 2c1 .5 2 2 2 5"/>
+                                        </svg>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <h4 class="font-extrabold text-slate-900 text-xl mb-0.5">وجبة خفيفة أولى - سناك ١</h4>
+                                        <p id="out-snack1" class="text-slate-800 text-[17px] font-semibold whitespace-pre-line leading-snug">-</p>
+                                    </div>
+                                </div>
+
+                                <!-- Lunch -->
+                                <div class="meal-card flex gap-3 bg-white border border-slate-200 rounded-xl p-3.5">
+                                    <div class="w-10 h-10 rounded-xl bg-orange-50 border border-orange-200/60 flex items-center justify-center text-orange-600 shrink-0 mt-0.5">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/>
+                                            <path d="M7 2v20"/>
+                                            <path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/>
+                                        </svg>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <h4 class="font-extrabold text-slate-900 text-xl mb-0.5">الغداء</h4>
+                                        <p id="out-lunch" class="text-slate-800 text-[17px] font-semibold whitespace-pre-line leading-snug">لم يتم تحديد وجبة الغداء بعد.</p>
+                                    </div>
+                                </div>
+
+                                <!-- Snack 2 -->
+                                <div class="meal-card flex gap-3 bg-white border border-slate-200 rounded-xl p-3.5">
+                                    <div class="w-10 h-10 rounded-xl bg-teal-50 border border-teal-200/60 flex items-center justify-center text-teal-600 shrink-0 mt-0.5">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M17 8h1a4 4 0 1 1 0 8h-1"/>
+                                            <path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/>
+                                            <line x1="6" x2="6" y1="2" y2="4"/>
+                                            <line x1="10" x2="10" y1="2" y2="4"/>
+                                            <line x1="14" x2="14" y1="2" y2="4"/>
+                                        </svg>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <h4 class="font-extrabold text-slate-900 text-xl mb-0.5">وجبة خفيفة ثانية - سناك ٢</h4>
+                                        <p id="out-snack2" class="text-slate-800 text-[17px] font-semibold whitespace-pre-line leading-snug">-</p>
+                                    </div>
+                                </div>
+
+                                <!-- Dinner -->
+                                <div class="meal-card flex gap-3 bg-white border border-slate-200 rounded-xl p-3.5">
+                                    <div class="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-200/60 flex items-center justify-center text-indigo-600 shrink-0 mt-0.5">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
+                                        </svg>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <h4 class="font-extrabold text-slate-900 text-xl mb-0.5">العشاء</h4>
+                                        <p id="out-dinner" class="text-slate-800 text-[17px] font-semibold whitespace-pre-line leading-snug">لم يتم تحديد وجبة العشاء بعد.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Bottom Row: Notes on the Right + Doctor's Signature next to it on the Left -->
+                        <div class="flex items-stretch gap-4 pt-2">
+                            <!-- Notes Box -->
+                            <div class="meal-card flex-1 bg-amber-50/70 rounded-xl p-3.5 border border-amber-200/70 flex flex-col justify-center">
+                                <div class="flex items-center gap-2 text-amber-800 font-extrabold text-base mb-1">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" class="text-amber-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/>
+                                        <path d="M12 16v-4"/>
+                                        <path d="M12 8h.01"/>
+                                    </svg>
+                                    <span>ملاحظات وتوصيات عامة</span>
+                                </div>
+                                <p id="out-notes" class="text-base font-semibold text-slate-800 whitespace-pre-line leading-snug">الرجاء الالتزام بالكميات المحددة وشرب كمية كافية من الماء على مدار اليوم.</p>
+                            </div>
+
+                            <!-- Signature Block -->
+                            <div class="w-48 shrink-0 bg-slate-50/70 rounded-xl p-3 border border-slate-200/70 flex flex-col items-center justify-center text-center">
+                                <span class="text-xs font-bold text-slate-400 mb-1">توقيع الطبيب</span>
+                                
+                                <!-- Custom Uploaded Signature -->
+                                <img id="custom-sig-img" alt="توقيع د/ شذا العطار" class="h-16 w-auto object-contain hidden">
+
+                                <!-- Built-in Vector Reproduction of Dr. Shaza's Blue Ink Signature -->
+                                <svg id="default-sig-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 265" class="h-16 w-auto select-none">
+                                    <defs>
+                                        <filter id="ink-soft" x="-10%" y="-10%" width="120%" height="120%">
+                                            <feGaussianBlur stdDeviation="1.4" />
+                                        </filter>
+                                    </defs>
+                                    <g filter="url(#ink-soft)" fill="none" stroke="#0b1582" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M 498 73 C 532 76, 526 98, 491 124" stroke-width="18" />
+                                        <path d="M 484 18 C 464 56, 444 106, 430 173" stroke-width="15" opacity="0.92" />
+                                        <path d="M 480 24 C 462 60, 443 108, 430 173" stroke-width="10" />
+                                        <path d="M 314 78 C 321 55, 326 57, 344 85" stroke-width="13" opacity="0.9" />
+                                        <circle cx="256" cy="76" r="5.5" fill="#0b1582" stroke="none" opacity="0.55" />
+                                        <path d="M 222 72 C 216 95, 211 118, 207 137" stroke-width="10" opacity="0.65" />
+                                        <path d="M 59 197 C 165 170, 285 138, 389 107" stroke-width="22" opacity="0.88" />
+                                        <path d="M 389 107 C 315 133, 255 151, 212 162 C 236 142, 256 122, 261 112 C 254 126, 232 152, 165 173" stroke-width="18" />
+                                        <path d="M 111 135 C 94 176, 98 202, 114 188 C 134 168, 152 125, 153 118 C 143 158, 130 205, 121 224 C 118 228, 127 216, 141 182" stroke-width="21" />
+                                        <path d="M 112 165 C 82 214, 52 246, 22 252" stroke-width="11" opacity="0.72" />
+                                    </g>
+                                </svg>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Crash-Proof Application Logic -->
+    <script>
+        // 1. Set Current Date Safely
+        const today = new Date();
+        const formattedFileDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+        try {
+            const dateOptions = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
+            document.getElementById('current-date').textContent = today.toLocaleDateString('ar-EG', dateOptions);
+        } catch (e) {
+            document.getElementById('current-date').textContent = formattedFileDate;
+        }
+
+        // 2. Two-Way Data Binding Function
+        const bindings = [
+            { in: 'in-name', out: 'out-name', default: '-' },
+            { in: 'in-age', out: 'out-age', default: '-', suffix: ' سنة' },
+            { in: 'in-weight', out: 'out-weight', default: '-', suffix: ' كجم' },
+            { in: 'in-height', out: 'out-height', default: '-', suffix: ' سم' },
+            { in: 'in-week', out: 'out-week', default: '' },
+            { in: 'in-breakfast', out: 'out-breakfast', default: 'لم يتم تحديد وجبة الإفطار بعد.' },
+            { in: 'in-snack1', out: 'out-snack1', default: '-' },
+            { in: 'in-lunch', out: 'out-lunch', default: 'لم يتم تحديد وجبة الغداء بعد.' },
+            { in: 'in-snack2', out: 'out-snack2', default: '-' },
+            { in: 'in-dinner', out: 'out-dinner', default: 'لم يتم تحديد وجبة العشاء بعد.' },
+            { in: 'in-notes', out: 'out-notes', default: 'الرجاء الالتزام بالكميات المحددة وشرب كمية كافية من الماء على مدار اليوم.' }
+        ];
+
+        function syncAll() {
+            bindings.forEach(item => {
+                const inputEl = document.getElementById(item.in);
+                const outputEl = document.getElementById(item.out);
+                if (inputEl && outputEl) {
+                    const val = inputEl.value.trim();
+                    outputEl.textContent = val ? (val + (item.suffix || '')) : item.default;
+                }
+            });
+        }
+
+        // 3. Safe localStorage Access for Signature
+        const customSigImg = document.getElementById('custom-sig-img');
+        const defaultSigSvg = document.getElementById('default-sig-svg');
+
+        try {
+            const savedSig = window.localStorage ? localStorage.getItem('dr_shaza_signature') : null;
+            if (savedSig) {
+                customSigImg.src = savedSig;
+                customSigImg.classList.remove('hidden');
+                defaultSigSvg.classList.add('hidden');
+            }
+        } catch (err) {
+            console.warn('localStorage restricted on file:// protocol; using built-in vector signature.');
+        }
+
+        const sigUploadEl = document.getElementById('sig-upload');
+        if (sigUploadEl) {
+            sigUploadEl.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    const base64Data = evt.target.result;
+                    customSigImg.src = base64Data;
+                    customSigImg.classList.remove('hidden');
+                    defaultSigSvg.classList.add('hidden');
+                    try {
+                        localStorage.setItem('dr_shaza_signature', base64Data);
+                    } catch (err) {}
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // 4. Pre-fetch & Convert Google Font "Cairo" into Base64 CSS so saved PDF always includes the exact font
+        let cachedFontEmbedCSS = null;
+
+        async function getCairoFontEmbedCSS() {
+            if (cachedFontEmbedCSS) return cachedFontEmbedCSS;
+            try {
+                const cssUrl = 'https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap';
+                const cssResponse = await fetch(cssUrl);
+                let cssText = await cssResponse.text();
+
+                // Find all font file URLs inside the Google Fonts stylesheet
+                const urlRegex = /url\((https:\/\/fonts\.gstatic\.com\/[^)]+)\)/g;
+                const matches = [...cssText.matchAll(urlRegex)];
+
+                await Promise.all(matches.map(async (match) => {
+                    const fullMatch = match[0];
+                    const fontUrl = match[1].replace(/['"]/g, '');
+                    try {
+                        const fontRes = await fetch(fontUrl);
+                        const blob = await fontRes.blob();
+                        const base64DataUrl = await new Promise((resolve) => {
+                            const reader = new FileReader();
+                            reader.onloadend = () => resolve(reader.result);
+                            reader.readAsDataURL(blob);
+                        });
+                        cssText = cssText.split(fullMatch).join(`url("${base64DataUrl}")`);
+                    } catch (err) {
+                        console.warn('Could not inline font binary:', fontUrl);
+                    }
+                }));
+
+                cachedFontEmbedCSS = cssText;
+                return cachedFontEmbedCSS;
+            } catch (e) {
+                console.warn('Could not fetch Cairo font for embedding:', e);
+                return '';
+            }
+        }
+
+        // Warm up the font cache in the background as soon as the page loads
+        getCairoFontEmbedCSS();
+
+        // 5. Dedicated Print Function
+        function printPlan() {
+            syncAll();
+            const clientName = document.getElementById('in-name').value.trim() || 'متابع';
+            const cleanName = clientName.replace(/\s+/g, '_');
+            const originalTitle = document.title;
+            document.title = `${cleanName}_${formattedFileDate}`;
+            window.print();
+            document.title = originalTitle;
+        }
+
+        // 6. Dedicated Save as PDF Function (Embeds Base64 Cairo Font + Saves Strictly 1 A4 Page)
+        async function generatePDF() {
+            syncAll();
+            const btn = document.getElementById('export-btn');
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '<span>جاري الحفظ...</span>';
+            btn.disabled = true;
+
+            const element = document.getElementById('pdf-content');
+            const clientName = document.getElementById('in-name').value.trim() || 'متابع';
+            const cleanName = clientName.replace(/\s+/g, '_');
+            const filename = `${cleanName}_${formattedFileDate}.pdf`;
+
+            try {
+                if (document.fonts && document.fonts.ready) {
+                    await document.fonts.ready;
+                }
+
+                // Get Base64-encoded Cairo @font-face rules so SVG foreignObject renders the exact font
+                const fontEmbedCSS = await getCairoFontEmbedCSS();
+
+                const exactWidth = 794;
+                const exactHeight = 1122;
+
+                const captureOptions = {
+                    quality: 1.0,
+                    pixelRatio: 2.5,
+                    width: exactWidth,
+                    height: exactHeight,
+                    backgroundColor: '#ffffff',
+                    cacheBust: false,
+                    style: {
+                        margin: '0',
+                        transform: 'none',
+                        boxShadow: 'none',
+                        width: '794px',
+                        height: '1122px',
+                        maxHeight: '1122px'
+                    }
+                };
+
+                if (fontEmbedCSS) {
+                    captureOptions.fontEmbedCSS = fontEmbedCSS;
+                } else {
+                    captureOptions.skipFonts = true;
+                }
+
+                const dataUrl = await htmlToImage.toPng(element, captureOptions);
+
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF({
+                    orientation: 'portrait',
+                    unit: 'mm',
+                    format: 'a4'
+                });
+
+                pdf.addImage(dataUrl, 'PNG', 0, 0, 210, 297, undefined, 'FAST');
+                pdf.save(filename);
+            } catch (error) {
+                console.error('Error generating PDF:', error);
+                alert('حدث خطأ أثناء حفظ الملف: ' + error.message);
+            } finally {
+                btn.innerHTML = originalHTML;
+                btn.disabled = false;
+            }
+        }
+
+        // Initialize preview on load
+        syncAll();
+    </script>
+</body>
+</html>
