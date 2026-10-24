@@ -7,27 +7,18 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts: Cairo -->
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet" crossorigin="anonymous">
-    <!-- html-to-image & jsPDF -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
     <script>
         if (typeof tailwind !== 'undefined') {
             tailwind.config = {
                 theme: {
                     extend: {
-                        fontFamily: {
-                            sans: ['Cairo', 'sans-serif'],
-                        },
+                        fontFamily: { sans: ['Cairo', 'sans-serif'] },
                         colors: {
                             emerald: {
-                                50: '#ecfdf5',
-                                100: '#d1fae5',
-                                500: '#10b981',
-                                600: '#059669',
-                                700: '#047857',
-                                800: '#065f46',
-                                900: '#064e3b',
+                                50: '#ecfdf5', 100: '#d1fae5', 500: '#10b981',
+                                600: '#059669', 700: '#047857', 800: '#065f46', 900: '#064e3b',
                             }
                         }
                     }
@@ -43,23 +34,23 @@
         #pdf-content, #pdf-content * {
             font-family: 'Cairo', system-ui, -apple-system, sans-serif !important;
             letter-spacing: 0px !important;
-            font-feature-settings: "kern" 1, "liga" 1, "clig" 1;
             -webkit-font-smoothing: antialiased;
         }
         .meal-card {
             page-break-inside: avoid;
             break-inside: avoid;
         }
-        /* Strict Single-Page A4 Print Formatting */
+
+        /* Strict Single-Page A4 Formatting for Native PDF Export */
         @media print {
             @page {
                 size: A4 portrait;
-                margin: 0mm !important;
+                margin: 0 !important;
             }
             html, body {
                 width: 210mm !important;
-                height: 296mm !important;
-                max-height: 296mm !important;
+                height: 297mm !important;
+                max-height: 297mm !important;
                 background: #ffffff !important;
                 margin: 0 !important;
                 padding: 0 !important;
@@ -86,13 +77,13 @@
             }
             #pdf-content {
                 width: 210mm !important;
-                height: 296mm !important;
-                min-height: 296mm !important;
-                max-height: 296mm !important;
+                height: 297mm !important;
+                min-height: 297mm !important;
+                max-height: 297mm !important;
                 box-shadow: none !important;
                 border: none !important;
                 margin: 0 auto !important;
-                padding: 7mm 8mm !important;
+                padding: 8mm 9mm !important;
                 box-sizing: border-box !important;
                 overflow: hidden !important;
                 page-break-after: avoid !important;
@@ -117,34 +108,25 @@
                     <span class="text-xs text-emerald-600 font-semibold">استشاري التغذية العلاجية</span>
                 </div>
             </div>
-            <div class="flex items-center gap-2">
-                <button type="button" onclick="printPlan()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2 px-3 sm:px-4 rounded-lg transition-all flex items-center gap-1.5 text-xs sm:text-sm border border-slate-200 active:scale-95">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="6 9 6 2 18 2 18 9"/>
-                        <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
-                        <rect width="12" height="8" x="6" y="14"/>
-                    </svg>
-                    <span>طباعة</span>
-                </button>
-                <button type="button" onclick="generatePDF()" id="export-btn" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-3.5 sm:px-5 rounded-lg shadow-md shadow-emerald-600/20 transition-all flex items-center gap-1.5 text-xs sm:text-sm active:scale-95">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                        <polyline points="7 10 12 15 17 10"/>
-                        <line x1="12" x2="12" y1="15" y2="3"/>
-                    </svg>
-                    <span>حفظ PDF</span>
-                </button>
-            </div>
+
+            <!-- Single Native Vector PDF Export Button -->
+            <button type="button" onclick="exportNativePDF()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-4 sm:px-6 rounded-lg shadow-md shadow-emerald-600/20 transition-all flex items-center gap-2 text-sm active:scale-95">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="7 10 12 15 17 10"/>
+                    <line x1="12" x2="12" y1="15" y2="3"/>
+                </svg>
+                <span>حفظ الخطة كملف PDF</span>
+            </button>
         </div>
     </nav>
 
     <!-- Main Content Grid -->
     <main class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
         
-        <!-- Right Column (in RTL): Input Form -->
+        <!-- Right Column: Input Form -->
         <div class="input-panel lg:col-span-5 space-y-5">
             
-            <!-- Client Information Card -->
             <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200/80">
                 <h2 class="text-lg font-bold text-slate-900 mb-3.5 flex items-center gap-2 border-b pb-2.5 border-slate-100">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" class="text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -153,13 +135,11 @@
                     </svg>
                     بيانات المتابع
                 </h2>
-                
                 <div class="space-y-3.5">
                     <div>
                         <label class="block text-xs font-bold text-slate-600 mb-1">اسم المتابع</label>
                         <input type="text" id="in-name" oninput="syncAll()" placeholder="مثال: سارة أحمد" class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none text-base">
                     </div>
-                    
                     <div class="grid grid-cols-3 gap-2.5">
                         <div>
                             <label class="block text-xs font-bold text-slate-600 mb-1">العمر</label>
@@ -177,7 +157,6 @@
                 </div>
             </div>
 
-            <!-- Meal Plan Inputs Card -->
             <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200/80">
                 <h2 class="text-lg font-bold text-slate-900 mb-3.5 flex items-center gap-2 border-b pb-2.5 border-slate-100">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" class="text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -187,44 +166,35 @@
                     </svg>
                     البرنامج الغذائي للأسبوع
                 </h2>
-
                 <div class="space-y-3.5">
                     <div>
                         <label class="block text-xs font-bold text-emerald-700 mb-1">رقم الأسبوع</label>
                         <input type="text" id="in-week" oninput="syncAll()" placeholder="مثال: الأول، الثاني، الثالث..." class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none text-base">
                     </div>
-
                     <div>
                         <label class="block text-xs font-bold text-emerald-700 mb-1">الإفطار</label>
                         <textarea id="in-breakfast" oninput="syncAll()" rows="2" placeholder="أدخل خيارات وجبة الإفطار والكميات..." class="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none text-base resize-y"></textarea>
                     </div>
-
                     <div>
                         <label class="block text-xs font-bold text-emerald-700 mb-1">وجبة خفيفة أولى - سناك ١</label>
                         <textarea id="in-snack1" oninput="syncAll()" rows="2" placeholder="مثال: ثمرة فاكهة، قهوة بدون سكر..." class="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none text-base resize-y"></textarea>
                     </div>
-
                     <div>
                         <label class="block text-xs font-bold text-emerald-700 mb-1">الغداء</label>
                         <textarea id="in-lunch" oninput="syncAll()" rows="2" placeholder="أدخل تفاصيل وجبة الغداء ومصادر البروتين والنشويات..." class="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none text-base resize-y"></textarea>
                     </div>
-
                     <div>
                         <label class="block text-xs font-bold text-emerald-700 mb-1">وجبة خفيفة ثانية - سناك ٢</label>
                         <textarea id="in-snack2" oninput="syncAll()" rows="2" placeholder="مثال: حفنة مكسرات نيئة، زبادي يوناني..." class="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none text-base resize-y"></textarea>
                     </div>
-
                     <div>
                         <label class="block text-xs font-bold text-emerald-700 mb-1">العشاء</label>
                         <textarea id="in-dinner" oninput="syncAll()" rows="2" placeholder="أدخل خيارات وجبة العشاء الخفيفة..." class="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none text-base resize-y"></textarea>
                     </div>
-
                     <div>
                         <label class="block text-xs font-bold text-slate-600 mb-1">ملاحظات وتوصيات عامة</label>
                         <textarea id="in-notes" oninput="syncAll()" rows="2" placeholder="تعليمات شرب الماء، مواعيد النوم، الرياضة، المكملات..." class="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none text-base resize-y"></textarea>
                     </div>
-
-                    <!-- Custom Signature Image Customizer -->
                     <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
                         <div>
                             <span class="text-xs font-bold text-slate-700 block">توقيع الطبيب المعتمد</span>
@@ -239,7 +209,7 @@
             </div>
         </div>
 
-        <!-- Left Column (in RTL): Live Document Preview -->
+        <!-- Left Column: Live Document Preview -->
         <div class="lg:col-span-7">
             <div class="sticky top-20">
                 <div class="preview-header-bar flex items-center justify-between mb-2">
@@ -247,14 +217,11 @@
                     <span class="text-xs text-slate-400">يتم التحديث تلقائياً</span>
                 </div>
                 
-                <!-- Scrollable Preview Container -->
                 <div class="preview-wrapper bg-slate-200/70 p-2 sm:p-4 rounded-xl overflow-x-auto shadow-inner flex justify-center">
                     
-                    <!-- THE ACTUAL PDF CONTENT AREA -->
                     <div id="pdf-content" dir="rtl" class="bg-white shadow-sm text-slate-800 relative w-[794px] h-[1122px] max-h-[1122px] py-6 px-5 flex flex-col justify-between box-border shrink-0 overflow-hidden">
                         
                         <div>
-                            <!-- Document Header -->
                             <div class="border-b-2 border-emerald-600 pb-3.5 mb-4 flex justify-between items-center">
                                 <div>
                                     <h1 class="text-3xl font-extrabold text-slate-900 mb-0.5 leading-tight">
@@ -262,7 +229,6 @@
                                     </h1>
                                     <p class="text-emerald-700 font-bold text-xl">استشاري التغذية العلاجية</p>
                                 </div>
-
                                 <div class="flex items-center gap-3.5">
                                     <div class="text-left bg-slate-50 px-3.5 py-2 rounded-xl border border-slate-200/80">
                                         <div class="text-[11px] font-bold text-emerald-700 mb-0.5">التاريخ</div>
@@ -276,7 +242,6 @@
                                 </div>
                             </div>
 
-                            <!-- Client Details Grid -->
                             <div class="bg-slate-50 rounded-xl p-3 mb-4 border border-slate-200/90">
                                 <div class="grid grid-cols-4 gap-2.5 text-right">
                                     <div class="bg-white p-2.5 rounded-lg border border-slate-200/70">
@@ -298,7 +263,6 @@
                                 </div>
                             </div>
 
-                            <!-- Meals Section -->
                             <div class="space-y-3 mb-4">
                                 <h3 class="text-xl font-extrabold text-emerald-800 border-b border-slate-200 pb-1.5 flex items-center gap-1.5">
                                     <span>البرنامج الغذائي للأسبوع</span>
@@ -367,7 +331,6 @@
                             </div>
                         </div>
 
-                        <!-- Bottom Row: Notes + Doctor's Signature -->
                         <div class="flex items-stretch gap-4 pt-2">
                             <div class="meal-card flex-1 bg-amber-50/70 rounded-xl p-3.5 border border-amber-200/70 flex flex-col justify-center">
                                 <div class="flex items-center gap-2 text-amber-800 font-extrabold text-base mb-1">
@@ -405,23 +368,26 @@
                                 </svg>
                             </div>
                         </div>
+
                     </div>
                 </div>
             </div>
         </div>
+
     </main>
 
-    <!-- Crash-Proof Application Logic -->
+    <!-- Application Logic -->
     <script>
+        // 1. Current Date
         const today = new Date();
         const formattedFileDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
         try {
-            const dateOptions = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
-            document.getElementById('current-date').textContent = today.toLocaleDateString('ar-EG', dateOptions);
+            document.getElementById('current-date').textContent = today.toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' });
         } catch (e) {
             document.getElementById('current-date').textContent = formattedFileDate;
         }
 
+        // 2. Data Binding
         const bindings = [
             { in: 'in-name', out: 'out-name', default: '-' },
             { in: 'in-age', out: 'out-age', default: '-', suffix: ' سنة' },
@@ -447,6 +413,7 @@
             });
         }
 
+        // 3. Signature Handling
         const customSigImg = document.getElementById('custom-sig-img');
         const defaultSigSvg = document.getElementById('default-sig-svg');
 
@@ -457,9 +424,7 @@
                 customSigImg.classList.remove('hidden');
                 defaultSigSvg.classList.add('hidden');
             }
-        } catch (err) {
-            console.warn('localStorage restricted.');
-        }
+        } catch (e) {}
 
         const sigUploadEl = document.getElementById('sig-upload');
         if (sigUploadEl) {
@@ -468,121 +433,35 @@
                 if (!file) return;
                 const reader = new FileReader();
                 reader.onload = function(evt) {
-                    const base64Data = evt.target.result;
-                    customSigImg.src = base64Data;
+                    const b64 = evt.target.result;
+                    customSigImg.src = b64;
                     customSigImg.classList.remove('hidden');
                     defaultSigSvg.classList.add('hidden');
-                    try { localStorage.setItem('dr_shaza_signature', base64Data); } catch (err) {}
+                    try { localStorage.setItem('dr_shaza_signature', b64); } catch (err) {}
                 };
                 reader.readAsDataURL(file);
             });
         }
 
-        let cachedFontEmbedCSS = null;
-
-        async function getCairoFontEmbedCSS() {
-            if (cachedFontEmbedCSS) return cachedFontEmbedCSS;
-            try {
-                const cssUrl = 'https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap';
-                const cssResponse = await fetch(cssUrl);
-                let cssText = await cssResponse.text();
-                const urlRegex = /url\((https:\/\/fonts\.gstatic\.com\/[^)]+)\)/g;
-                const matches = [...cssText.matchAll(urlRegex)];
-
-                await Promise.all(matches.map(async (match) => {
-                    const fullMatch = match[0];
-                    const fontUrl = match[1].replace(/['"]/g, '');
-                    try {
-                        const fontRes = await fetch(fontUrl);
-                        const blob = await fontRes.blob();
-                        const base64DataUrl = await new Promise((resolve) => {
-                            const reader = new FileReader();
-                            reader.onloadend = () => resolve(reader.result);
-                            reader.readAsDataURL(blob);
-                        });
-                        cssText = cssText.split(fullMatch).join(`url("${base64DataUrl}")`);
-                    } catch (err) {}
-                }));
-
-                cachedFontEmbedCSS = cssText;
-                return cachedFontEmbedCSS;
-            } catch (e) {
-                return '';
-            }
-        }
-
-        getCairoFontEmbedCSS();
-
-        function printPlan() {
+        // 4. Native Vector PDF Export Router
+        function exportNativePDF() {
             syncAll();
             const clientName = document.getElementById('in-name').value.trim() || 'متابع';
             const cleanName = clientName.replace(/\s+/g, '_');
             const originalTitle = document.title;
+            
+            // This temporarily renames the document so Android pre-fills the PDF filename correctly
             document.title = `${cleanName}_${formattedFileDate}`;
+            
+            // Triggers the system's native Print/PDF engine
             window.print();
-            document.title = originalTitle;
+            
+            setTimeout(() => {
+                document.title = originalTitle;
+            }, 1000);
         }
 
-        async function generatePDF() {
-            syncAll();
-            const btn = document.getElementById('export-btn');
-            const originalHTML = btn.innerHTML;
-            btn.innerHTML = '<span>جاري الحفظ...</span>';
-            btn.disabled = true;
-
-            const element = document.getElementById('pdf-content');
-            const clientName = document.getElementById('in-name').value.trim() || 'متابع';
-            const cleanName = clientName.replace(/\s+/g, '_');
-            const filename = `${cleanName}_${formattedFileDate}.pdf`;
-
-            try {
-                if (document.fonts && document.fonts.ready) await document.fonts.ready;
-                
-                const fontEmbedCSS = await getCairoFontEmbedCSS();
-                const exactWidth = 794;
-                const exactHeight = 1122;
-
-                const captureOptions = {
-                    quality: 1.0,
-                    // Dynamic pixel ratio: drops resolution strictly on mobile (width < 768) to prevent memory crash
-                    pixelRatio: window.innerWidth < 768 ? 1.5 : 2, 
-                    width: exactWidth,
-                    height: exactHeight,
-                    backgroundColor: '#ffffff',
-                    cacheBust: false,
-                    style: {
-                        margin: '0',
-                        transform: 'none',
-                        boxShadow: 'none',
-                        width: '794px',
-                        height: '1122px',
-                        maxHeight: '1122px'
-                    }
-                };
-
-                if (fontEmbedCSS) captureOptions.fontEmbedCSS = fontEmbedCSS;
-                else captureOptions.skipFonts = true;
-
-                const dataUrl = await htmlToImage.toPng(element, captureOptions);
-                const { jsPDF } = window.jspdf;
-                const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-                
-                pdf.addImage(dataUrl, 'PNG', 0, 0, 210, 297, undefined, 'FAST');
-                pdf.save(filename);
-                
-            } catch (error) {
-                console.error('Error generating PDF:', error);
-                const errMsg = error?.message || (typeof error === 'string' ? error : 'نفدت ذاكرة المتصفح للرسم');
-                alert('تعذر الحفظ المباشر (' + errMsg + ') بسبب قيود ذاكرة الهاتف.\n\nسيتم تحويلك لخيارات الطباعة كبديل يعمل بكفاءة، يرجى اختيار "حفظ بتنسيق PDF" من الأعلى.');
-                
-                // Fallback automatically to the working print functionality 
-                printPlan();
-            } finally {
-                btn.innerHTML = originalHTML;
-                btn.disabled = false;
-            }
-        }
-
+        // Run on load
         syncAll();
     </script>
 </body>
